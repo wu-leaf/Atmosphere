@@ -10,7 +10,7 @@
               android:gravity="center"
               android:orientation="vertical"
               app:layout_behavior="@string/appbar_scrolling_view_behavior"
->
+    >
 
     <ImageView
         android:id="@+id/about_img"
@@ -25,7 +25,7 @@
         android:paddingBottom="100dp"
         android:textSize="16sp"
         android:gravity="center_horizontal"
-        android:text="当前版本：1.1beta"
+        android:text="这个页面放  详情 -各个图文"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 </LinearLayout>

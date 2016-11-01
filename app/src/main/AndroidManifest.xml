@@ -21,7 +21,7 @@
     <!-- 允许程序访问CellID或WiFi热点来获取粗略的位置 -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
 
-    <android:uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
     <application
         android:name=".MyApplication"
@@ -41,7 +41,7 @@
             android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
-
+                <action android:name="android.intent.action.SEARCH"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
@@ -49,6 +49,12 @@
         <service android:name="com.amap.api.location.APSService"/>
 
         <activity android:name=".view.AboutActivity">
+        </activity>
+        <activity android:name=".view.DetailsActivity">
+        </activity>
+        <activity
+            android:name=".view.GuideActivity"
+            android:label="@string/title_activity_guide">
         </activity>
     </application>
 

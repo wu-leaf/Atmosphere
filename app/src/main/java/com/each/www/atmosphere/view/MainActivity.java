@@ -2,7 +2,10 @@ package com.each.www.atmosphere.view;
 
 
 
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -14,10 +17,15 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.SearchView;
 import android.widget.TextView;
 import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationClient;
@@ -47,7 +55,8 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements AMap.OnMarkerClickListener,
          AMap.OnMarkerDragListener, AMap.OnMapLoadedListener,
-        View.OnClickListener ,LocationSource,AMapLocationListener{
+        View.OnClickListener ,AMap.OnInfoWindowClickListener,
+        LocationSource,AMapLocationListener,TextView.OnEditorActionListener{
 
         private DrawerLayout mDrawerLayout;
 
@@ -55,15 +64,15 @@ public class MainActivity extends AppCompatActivity implements AMap.OnMarkerClic
         private AMap aMap;
         private MapView mapView;
 
-
-
         private OnLocationChangedListener mListener;
         private AMapLocationClient mlocationClient;
         private AMapLocationClientOption mLocationOption;
         private TextView mLocationErrText;
-        private static final int STROKE_COLOR = Color.argb(180, 3, 145, 255);
+        //Color.argb(180, 3, 145, 255);
+        private static final int STROKE_COLOR = Color.argb(180, 255, 0, 0);
         private static final int FILL_COLOR = Color.argb(10, 0, 0, 180);
 
+        private SearchView searchView;
         @Override
         protected void onCreate(Bundle savedInstanceState) {
                 super.onCreate(savedInstanceState);
@@ -92,9 +101,19 @@ public class MainActivity extends AppCompatActivity implements AMap.OnMarkerClic
                 mapView = (MapView) findViewById(R.id.map);
                 mapView.onCreate(savedInstanceState); // 此方法必须重写
                 init();
+                init_search();
         }
 
-        private void setupDrawerContent(NavigationView navigationView) {
+    private void init_search() {
+        //执行查询动作
+        Intent intent = getIntent();
+        String search = intent.getStringExtra(SearchManager.QUERY);
+        if (search != null){
+            ToastUtil.show(MainActivity.this,search);
+        }
+    }
+
+    private void setupDrawerContent(NavigationView navigationView) {
                 navigationView.setNavigationItemSelectedListener(
                         new NavigationView.OnNavigationItemSelectedListener() {
                                 @Override
@@ -103,14 +122,14 @@ public class MainActivity extends AppCompatActivity implements AMap.OnMarkerClic
                                                 case R.id.nav_home:
                                                         mDrawerLayout.closeDrawers();
                                                         return true;
-                                              /*  case R.id.action_settings:
-                                                        Intent intent_settings = new Intent(MainActivity.this,SettingsActivity.class);
-                                                        startActivity(intent_settings);
-                                                        return true;
-                                                        */
+
                                                 case R.id.action_about:
                                                         Intent intent_about = new Intent(MainActivity.this,AboutActivity.class);
                                                         startActivity(intent_about);
+                                                        return true;
+                                                case R.id.action_guide:
+                                                        Intent intent_guide = new Intent(MainActivity.this,GuideActivity.class);
+                                                        startActivity(intent_guide);
                                                         return true;
                                         }
                                         menuItem.setChecked(true);
@@ -124,7 +143,6 @@ public class MainActivity extends AppCompatActivity implements AMap.OnMarkerClic
          * 初始化AMap对象
          */
         private void init() {
-
                 if (aMap == null) {
                         aMap = mapView.getMap();
                         setUpMap();
@@ -142,6 +160,9 @@ public class MainActivity extends AppCompatActivity implements AMap.OnMarkerClic
                 aMap.setOnMarkerDragListener(this);// 设置marker可拖拽事件监听器
                 aMap.setOnMapLoadedListener(this);// 设置amap加载成功事件监听器
                 aMap.setOnMarkerClickListener(this);// 设置点击marker事件监听器
+                aMap.setOnInfoWindowClickListener(this);//设置infowindows时间监听器
+
+                aMap.moveCamera(CameraUpdateFactory.zoomTo(18));
                 initMarkersInfoFormNet();//从网络获得  气象站 对象
                 //addMarkersToMap();// 往地图上添加marker
         }
@@ -177,7 +198,7 @@ public class MainActivity extends AppCompatActivity implements AMap.OnMarkerClic
                 // 自定义定位蓝点图标
                 myLocationStyle.myLocationIcon(BitmapDescriptorFactory.
                         fromResource(R.drawable.gps_point));
-                // 自定义精度范围的圆形边框颜色
+                // 自定义精度范围的圆形边框颜色  STROKE_COLOR
                 myLocationStyle.strokeColor(STROKE_COLOR);
                 //自定义精度范围的圆形边框宽度
                 myLocationStyle.strokeWidth(5);
@@ -193,6 +214,7 @@ public class MainActivity extends AppCompatActivity implements AMap.OnMarkerClic
         protected void onResume() {
                 super.onResume();
                 mapView.onResume();
+                init_search();
         }
         /**
          * 方法必须重写
@@ -245,6 +267,18 @@ public class MainActivity extends AppCompatActivity implements AMap.OnMarkerClic
                         .position(Constants.xxx).title("xxx").icons(giflist)
                         .draggable(true).period(10));*/
                // drawMarkers();// 添加10个带有系统默认icon的marker
+        }
+
+        /**
+         * 监听点击infowindow窗口事件回调
+         * @param marker
+         */
+        @Override
+        public void onInfoWindowClick(Marker marker) {
+                String mk = marker.getId();
+                Intent intent = new Intent(this,DetailsActivity.class);
+                intent.putExtra("mk",mk);
+                startActivity(intent);
         }
         /**
          * 对marker标注点点击响应事件
@@ -377,7 +411,7 @@ public class MainActivity extends AppCompatActivity implements AMap.OnMarkerClic
                                 && amapLocation.getErrorCode() == 0) {
                                 mLocationErrText.setVisibility(View.GONE);
                                 mListener.onLocationChanged(amapLocation);// 显示系统小蓝点
-                                aMap.moveCamera(CameraUpdateFactory.zoomTo(18));
+                              //  aMap.moveCamera(CameraUpdateFactory.zoomTo(18));
                         } else {
                                 String errText = "定位失败," + amapLocation.getErrorCode()+
                                         ": " + amapLocation.getErrorInfo();
@@ -394,26 +428,65 @@ public class MainActivity extends AppCompatActivity implements AMap.OnMarkerClic
 
         @Override
         public boolean onCreateOptionsMenu(Menu menu) {
-               getMenuInflater().inflate(R.menu.detail_actions,menu);
+               getMenuInflater().inflate(R.menu.menu_main,menu);
+
+                SearchManager searchManager =
+                        (SearchManager)getSystemService(Context.SEARCH_SERVICE);
+                searchView =
+                        (SearchView)menu.findItem(R.id.action_search).getActionView();
+                searchView.setSearchableInfo(searchManager
+                        .getSearchableInfo(getComponentName()));
+
+
                 return true;
         }
         @Override
         public boolean onOptionsItemSelected(MenuItem item) {
                 switch (item.getItemId()) {
-                        case android.R.id.home:
-                                mDrawerLayout.openDrawer(GravityCompat.START);
-                                return true;
-                        case R.id.action_about:
-                                Intent intent_about = new Intent(MainActivity.this,AboutActivity.class);
+                       /* case R.id.:
+                                Intent intent_about = new Intent(MainActivity.this,SearchActivity.class);
                                 startActivity(intent_about);
-                                return true;
-                        /*
-                        case R.id.action_settings:
-                                Intent intent_settings = new Intent(MainActivity.this,SettingsActivity.class);
-                                startActivity(intent_settings);
                                 return true;*/
+
                 }
                 return super.onOptionsItemSelected(item);
         }
 
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (event.getKeyCode()== KeyEvent.KEYCODE_SEARCH){
+            ToastUtil.show(MainActivity.this,"nima");
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+        public boolean dispatchKeyEvent(KeyEvent event) {
+                if (event.getKeyCode() == KeyEvent.KEYCODE_SEARCH){
+                        /**
+                         * 隐藏软键盘
+                         */
+                    ToastUtil.show(MainActivity.this,"点击search");
+                        InputMethodManager inputMethodManager =
+                                (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                        if (inputMethodManager.isActive()){
+                                inputMethodManager
+                                        .hideSoftInputFromWindow
+                                                (MainActivity.this.getCurrentFocus()
+                                                        .getWindowToken(), 0);
+                        }
+                        //执行逻辑
+                        ToastUtil.show(MainActivity.this,"点击search");
+                        return true;
+                }
+                return super.dispatchKeyEvent(event);
+        }
+
+    @Override
+    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+          if (actionId == EditorInfo.IME_ACTION_SEARCH){
+              ToastUtil.show(MainActivity.this,"heheda");
+          }
+        return true;
+    }
 }
