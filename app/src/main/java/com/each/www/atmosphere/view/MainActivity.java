@@ -1,12 +1,23 @@
-package com.each.www.atmosphere;
+package com.each.www.atmosphere.view;
 
 
-import android.app.Activity;
+
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
+import android.support.v4.view.GravityCompat;
+import android.support.v7.app.ActionBar;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationClient;
@@ -25,6 +36,8 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
+import com.each.www.atmosphere.MyApplication;
+import com.each.www.atmosphere.R;
 import com.each.www.atmosphere.model.atmosphere;
 import com.each.www.atmosphere.util.ToastUtil;
 import com.google.gson.Gson;
@@ -32,14 +45,17 @@ import com.google.gson.reflect.TypeToken;
 import java.util.List;
 
 
-public class MainActivity extends Activity implements AMap.OnMarkerClickListener,
+public class MainActivity extends AppCompatActivity implements AMap.OnMarkerClickListener,
          AMap.OnMarkerDragListener, AMap.OnMapLoadedListener,
         View.OnClickListener ,LocationSource,AMapLocationListener{
+
+        private DrawerLayout mDrawerLayout;
+
 
         private AMap aMap;
         private MapView mapView;
 
-        private Button trans;  //刷新marker
+
 
         private OnLocationChangedListener mListener;
         private AMapLocationClient mlocationClient;
@@ -51,17 +67,64 @@ public class MainActivity extends Activity implements AMap.OnMarkerClickListener
         @Override
         protected void onCreate(Bundle savedInstanceState) {
                 super.onCreate(savedInstanceState);
-                setContentView(R.layout.custommarker_activity);
+
+                //setContentView(R.layout.custommarker_activity);
+                setContentView(R.layout.activity_main);
+
+                Toolbar toolbar = (Toolbar)findViewById(R.id.toolbar);
+                setSupportActionBar(toolbar);
+                final ActionBar ab = getSupportActionBar();
+                assert ab != null;
+                ab.setHomeAsUpIndicator(R.drawable.ic_menu);
+                ab.setDisplayHomeAsUpEnabled(true);
+                mDrawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
+
+                //NavigationView是左侧侧滑菜单
+                NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+                if (navigationView != null) {
+                        setupDrawerContent(navigationView);//设置左侧导航抽屉
+                }
+
+                FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+                fab.setOnClickListener(this);
+
+
                 mapView = (MapView) findViewById(R.id.map);
                 mapView.onCreate(savedInstanceState); // 此方法必须重写
                 init();
         }
+
+        private void setupDrawerContent(NavigationView navigationView) {
+                navigationView.setNavigationItemSelectedListener(
+                        new NavigationView.OnNavigationItemSelectedListener() {
+                                @Override
+                                public boolean onNavigationItemSelected(MenuItem menuItem) {
+                                        switch (menuItem.getItemId()){
+                                                case R.id.nav_home:
+                                                        mDrawerLayout.closeDrawers();
+                                                        return true;
+                                              /*  case R.id.action_settings:
+                                                        Intent intent_settings = new Intent(MainActivity.this,SettingsActivity.class);
+                                                        startActivity(intent_settings);
+                                                        return true;
+                                                        */
+                                                case R.id.action_about:
+                                                        Intent intent_about = new Intent(MainActivity.this,AboutActivity.class);
+                                                        startActivity(intent_about);
+                                                        return true;
+                                        }
+                                        menuItem.setChecked(true);
+                                        mDrawerLayout.closeDrawers();
+                                        return true;
+                                }
+                        });
+        }
+
         /**
          * 初始化AMap对象
          */
         private void init() {
-                trans = (Button)findViewById(R.id.test_trans);
-                trans.setOnClickListener(this);
+
                 if (aMap == null) {
                         aMap = mapView.getMap();
                         setUpMap();
@@ -253,8 +316,8 @@ public class MainActivity extends Activity implements AMap.OnMarkerClickListener
         @Override
         public void onClick(View v) {
                 switch (v.getId()) {
-                        //刷新所以marker
-                        case R.id.test_trans:
+                        //刷新所有marker
+                        case R.id.fab:
                                 aMap.clear();
                                 initMarkersInfoFormNet();
                                 break;
@@ -319,9 +382,38 @@ public class MainActivity extends Activity implements AMap.OnMarkerClickListener
                                 String errText = "定位失败," + amapLocation.getErrorCode()+
                                         ": " + amapLocation.getErrorInfo();
                                 Log.e("AmapErr", errText);
-                                mLocationErrText.setVisibility(View.VISIBLE);
-                                mLocationErrText.setText(errText);
+                               // mLocationErrText.setVisibility(View.VISIBLE);
+                               // mLocationErrText.setText(errText);
+                                DrawerLayout view = (DrawerLayout)findViewById(R.id.drawer_layout);
+                                Snackbar.make(view,errText,Snackbar.LENGTH_SHORT)
+                                        .setAction("Action", null).show();
+
                         }
                 }
         }
+
+        @Override
+        public boolean onCreateOptionsMenu(Menu menu) {
+               getMenuInflater().inflate(R.menu.detail_actions,menu);
+                return true;
+        }
+        @Override
+        public boolean onOptionsItemSelected(MenuItem item) {
+                switch (item.getItemId()) {
+                        case android.R.id.home:
+                                mDrawerLayout.openDrawer(GravityCompat.START);
+                                return true;
+                        case R.id.action_about:
+                                Intent intent_about = new Intent(MainActivity.this,AboutActivity.class);
+                                startActivity(intent_about);
+                                return true;
+                        /*
+                        case R.id.action_settings:
+                                Intent intent_settings = new Intent(MainActivity.this,SettingsActivity.class);
+                                startActivity(intent_settings);
+                                return true;*/
+                }
+                return super.onOptionsItemSelected(item);
+        }
+
 }
