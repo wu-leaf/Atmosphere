@@ -55,8 +55,8 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements AMap.OnMarkerClickListener,
          AMap.OnMarkerDragListener, AMap.OnMapLoadedListener,
-        View.OnClickListener ,AMap.OnInfoWindowClickListener,
-        LocationSource,AMapLocationListener,TextView.OnEditorActionListener{
+        View.OnClickListener ,AMap.OnInfoWindowClickListener, SearchView.OnQueryTextListener,
+        LocationSource,AMapLocationListener{
 
         private DrawerLayout mDrawerLayout;
 
@@ -100,18 +100,9 @@ public class MainActivity extends AppCompatActivity implements AMap.OnMarkerClic
 
                 mapView = (MapView) findViewById(R.id.map);
                 mapView.onCreate(savedInstanceState); // 此方法必须重写
-                init();
-                init_search();
-        }
 
-    private void init_search() {
-        //执行查询动作
-        Intent intent = getIntent();
-        String search = intent.getStringExtra(SearchManager.QUERY);
-        if (search != null){
-            ToastUtil.show(MainActivity.this,search);
+                init();
         }
-    }
 
     private void setupDrawerContent(NavigationView navigationView) {
                 navigationView.setNavigationItemSelectedListener(
@@ -122,7 +113,10 @@ public class MainActivity extends AppCompatActivity implements AMap.OnMarkerClic
                                                 case R.id.nav_home:
                                                         mDrawerLayout.closeDrawers();
                                                         return true;
-
+                                            case R.id.action_settings:
+                                                        Intent intent_setting = new Intent(MainActivity.this,SettingActivity.class);
+                                                        startActivity(intent_setting);
+                                                        return true;
                                                 case R.id.action_about:
                                                         Intent intent_about = new Intent(MainActivity.this,AboutActivity.class);
                                                         startActivity(intent_about);
@@ -191,7 +185,6 @@ public class MainActivity extends AppCompatActivity implements AMap.OnMarkerClic
                         }
                 }).start();
         }
-
         private void setupLocationStyle(){
                 // 自定义系统定位蓝点
                 MyLocationStyle myLocationStyle = new MyLocationStyle();
@@ -214,7 +207,6 @@ public class MainActivity extends AppCompatActivity implements AMap.OnMarkerClic
         protected void onResume() {
                 super.onResume();
                 mapView.onResume();
-                init_search();
         }
         /**
          * 方法必须重写
@@ -421,7 +413,6 @@ public class MainActivity extends AppCompatActivity implements AMap.OnMarkerClic
                                 DrawerLayout view = (DrawerLayout)findViewById(R.id.drawer_layout);
                                 Snackbar.make(view,errText,Snackbar.LENGTH_SHORT)
                                         .setAction("Action", null).show();
-
                         }
                 }
         }
@@ -436,8 +427,7 @@ public class MainActivity extends AppCompatActivity implements AMap.OnMarkerClic
                         (SearchView)menu.findItem(R.id.action_search).getActionView();
                 searchView.setSearchableInfo(searchManager
                         .getSearchableInfo(getComponentName()));
-
-
+                searchView.setOnQueryTextListener(this);
                 return true;
         }
         @Override
@@ -452,41 +442,17 @@ public class MainActivity extends AppCompatActivity implements AMap.OnMarkerClic
                 return super.onOptionsItemSelected(item);
         }
 
+
+    //监听  搜索框
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (event.getKeyCode()== KeyEvent.KEYCODE_SEARCH){
-            ToastUtil.show(MainActivity.this,"nima");
-        }
-        return super.onKeyDown(keyCode, event);
+    public boolean onQueryTextSubmit(String query) {
+        ToastUtil.show(MainActivity.this,"你想搜索"+query+"吗？");
+        return false;
     }
 
     @Override
-        public boolean dispatchKeyEvent(KeyEvent event) {
-                if (event.getKeyCode() == KeyEvent.KEYCODE_SEARCH){
-                        /**
-                         * 隐藏软键盘
-                         */
-                    ToastUtil.show(MainActivity.this,"点击search");
-                        InputMethodManager inputMethodManager =
-                                (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-                        if (inputMethodManager.isActive()){
-                                inputMethodManager
-                                        .hideSoftInputFromWindow
-                                                (MainActivity.this.getCurrentFocus()
-                                                        .getWindowToken(), 0);
-                        }
-                        //执行逻辑
-                        ToastUtil.show(MainActivity.this,"点击search");
-                        return true;
-                }
-                return super.dispatchKeyEvent(event);
-        }
-
-    @Override
-    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-          if (actionId == EditorInfo.IME_ACTION_SEARCH){
-              ToastUtil.show(MainActivity.this,"heheda");
-          }
-        return true;
+    public boolean onQueryTextChange(String newText) {
+        Log.e("TAG",newText);
+        return false;
     }
 }

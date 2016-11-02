@@ -20,7 +20,6 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
     <!-- 允许程序访问CellID或WiFi热点来获取粗略的位置 -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
     <application
@@ -41,20 +40,30 @@
             android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
-                <action android:name="android.intent.action.SEARCH"/>
+
                 <category android:name="android.intent.category.LAUNCHER"/>
+                v
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH"/>
             </intent-filter>
         </activity>
         <!-- 定位需要的服务 使用2.0的定位需要加上这个 -->
         <service android:name="com.amap.api.location.APSService"/>
 
-        <activity android:name=".view.AboutActivity">
+        <activity android:name=".view.AboutActivity"
+                  android:label="@string/title_activity_about">
         </activity>
         <activity android:name=".view.DetailsActivity">
         </activity>
         <activity
             android:name=".view.GuideActivity"
             android:label="@string/title_activity_guide">
+        </activity>
+        <activity
+            android:name=".view.SettingActivity"
+            android:label="@string/title_activity_setting"
+            android:theme="@style/AppTheme">
         </activity>
     </application>
 
