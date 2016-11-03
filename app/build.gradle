@@ -40,6 +40,13 @@ dependencies {
     compile 'com.android.support:appcompat-v7:23.2.1'
     compile 'com.android.support:design:23.2.1'
     compile 'com.google.code.gson:gson:2.6.2'
+    compile 'com.zhy:okhttputils:2.0.0'
+    compile 'com.squareup.okhttp3:okhttp:3.4.1'
+
+
+
+
+
 /*
     compile files('libs/Amap_2DMap_V2.9.1_20160825.jar')
     compile files('libs/AMap_Location_V2.4.1_20160414.jar')

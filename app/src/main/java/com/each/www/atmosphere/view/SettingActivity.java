@@ -1,5 +1,6 @@
 package com.each.www.atmosphere.view;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -9,6 +10,8 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.each.www.atmosphere.R;
+import com.each.www.atmosphere.services.DownloadService;
+import com.each.www.atmosphere.util.ToastUtil;
 
 public class SettingActivity extends AppCompatActivity {
 
@@ -32,4 +35,13 @@ public class SettingActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    public void Check(View view){
+        ToastUtil.show(SettingActivity.this,"检查更新");
+        Intent intent = new Intent(SettingActivity.this, DownloadService.class);
+        intent.putExtra("apkUrl", "APK下载地址");
+        startService(intent);
+    }
+    public void Feedback(View view){
+        ToastUtil.show(SettingActivity.this,"反馈");
+    }
 }

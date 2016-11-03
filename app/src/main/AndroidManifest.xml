@@ -51,8 +51,9 @@
         <!-- 定位需要的服务 使用2.0的定位需要加上这个 -->
         <service android:name="com.amap.api.location.APSService"/>
 
-        <activity android:name=".view.AboutActivity"
-                  android:label="@string/title_activity_about">
+        <activity
+            android:name=".view.AboutActivity"
+            android:label="@string/title_activity_about">
         </activity>
         <activity android:name=".view.DetailsActivity">
         </activity>
@@ -65,6 +66,12 @@
             android:label="@string/title_activity_setting"
             android:theme="@style/AppTheme">
         </activity>
+
+        <service
+            android:name=".services.DownloadService"
+            android:enabled="true"
+            android:exported="true">
+        </service>
     </application>
 
 </manifest>

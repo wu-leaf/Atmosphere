@@ -267,6 +267,10 @@ public class MainActivity extends AppCompatActivity implements AMap.OnMarkerClic
          */
         @Override
         public void onInfoWindowClick(Marker marker) {
+            /**
+             * 1.获得气象站 站名
+             * 2.获得气象站 所有图表  URL
+             */
                 String mk = marker.getId();
                 Intent intent = new Intent(this,DetailsActivity.class);
                 intent.putExtra("mk",mk);
