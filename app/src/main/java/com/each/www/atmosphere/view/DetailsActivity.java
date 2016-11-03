@@ -5,12 +5,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.webkit.WebView;
 import android.widget.TextView;
 
 import com.each.www.atmosphere.R;
 
 public class DetailsActivity extends AppCompatActivity {
     TextView details;
+    WebView mWebView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -24,6 +26,10 @@ public class DetailsActivity extends AppCompatActivity {
         Intent intent = getIntent();
         String mk = intent.getStringExtra("mk");
         details.setText(mk);
+
+        mWebView = (WebView)findViewById(R.id.webview);
+        mWebView.getSettings().setJavaScriptEnabled(true);
+        mWebView.loadUrl("http://11101001.com/chart.html");
     }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

@@ -6,26 +6,13 @@
               android:paddingBottom="@dimen/activity_vertical_margin"
               android:paddingLeft="@dimen/activity_horizontal_margin"
               android:paddingRight="@dimen/activity_horizontal_margin"
-              android:paddingTop="50dp"
-              android:gravity="center"
+              android:paddingTop="16dp"
               android:orientation="vertical"
               app:layout_behavior="@string/appbar_scrolling_view_behavior"
     >
-
-    <ImageView
-        android:id="@+id/about_img"
-        android:layout_width="120dp"
-        android:layout_height="120dp"
-        android:elevation="10dp"
-        android:background="@drawable/about_img"
-        android:layout_gravity="center_horizontal" />
-
-    <TextView
-        android:paddingTop="100dp"
-        android:paddingBottom="100dp"
-        android:textSize="16sp"
-        android:gravity="center_horizontal"
-        android:text="这个页面放  详情 -各个图文"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+    <WebView
+        android:id="@+id/webview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+    </WebView>
 </LinearLayout>
