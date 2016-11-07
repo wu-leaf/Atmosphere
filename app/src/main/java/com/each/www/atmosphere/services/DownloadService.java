@@ -8,10 +8,12 @@ import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.IBinder;
-import android.support.annotation.Nullable;
 import android.support.v7.app.NotificationCompat;
 
 import com.each.www.atmosphere.R;
+
+import com.each.www.atmosphere.util.Constants;
+import com.squareup.okhttp.Request;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.FileCallBack;
 
@@ -47,9 +49,6 @@ public class DownloadService extends Service {
     }
 
 
-    public DownloadService() {
-    }
-
     @Override
     public IBinder onBind(Intent intent) {
         throw null;
@@ -58,7 +57,8 @@ public class DownloadService extends Service {
     private void notifyMsg(String title, String content, int progress) {
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);//为了向下兼容，这里采用了v7包下的NotificationCompat来构造
-        builder.setSmallIcon(R.drawable.about_img).setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.icon_login_logo)).setContentTitle(title);
+        builder.setSmallIcon(R.drawable.about_img)
+                .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher)).setContentTitle(title);
         if (progress > 0 && progress < 100) {
             //下载进行中
             builder.setProgress(100, progress, false);
@@ -81,7 +81,7 @@ public class DownloadService extends Service {
      * @return
      */
     private PendingIntent getInstallIntent() {
-        File file = new File(StorageUtil.DOWNLOAD_DIR + "APP文件名");
+        File file = new File(Constants.DOWNLOAD_DIR + "test.apk");
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.setDataAndType(Uri.parse("file://" + file.getAbsolutePath()), "application/vnd.Android.package-archive");
@@ -95,33 +95,31 @@ public class DownloadService extends Service {
      */
     private void downloadFile(String url) {
 
-        OkHttpUtils.get().url(url).build().execute(new FileCallBack(StorageUtil.DOWNLOAD_DIR, "APP文件名") {
-            @Override
-            public void onError(Call call, Exception e, int id) {
-                notifyMsg("温馨提醒", "文件下载失败", 0);
-                stopSelf();
-            }
-
-            @Override
-            public void onResponse(File response, int id) {
-                //当文件下载完成后回调
-                notifyMsg("温馨提醒", "文件下载已完成", 100);
-                stopSelf();
+        OkHttpUtils.get().url(url).build()
+                .execute(new FileCallBack(Constants.DOWNLOAD_DIR, "test.apk") {
+                    @Override
+                    public void inProgress(float progress) {
+                        //progress*100为当前文件下载进度，total为文件大小
+                        if ((int) (progress * 100) % 10 == 0) {
+                            //避免频繁刷新View，这里设置每下载10%提醒更新一次进度
+                            notifyMsg("温馨提醒", "文件正在下载..", (int) (progress * 100));
+                        }
+                    }
 
 
-            }
+                    @Override
+                    public void onError(Request request, Exception e) {
+                        notifyMsg("温馨提醒", "文件下载失败", 0);
+                        stopSelf();
+                    }
 
-            @Override
-            public void inProgress(float progress, long total, int id) {
-                //progress*100为当前文件下载进度，total为文件大小
-                if ((int) (progress * 100) % 10 == 0) {
-                    //避免频繁刷新View，这里设置每下载10%提醒更新一次进度
-                    notifyMsg("温馨提醒", "文件正在下载..", (int) (progress * 100));
-                }
-            }
-        });
+                    @Override
+                    public void onResponse(File response) {
+                        //当文件下载完成后回调
+                        notifyMsg("温馨提醒", "文件下载已完成", 100);
 
-
+                        stopSelf();
+                    }
+                });
     }
-
 }

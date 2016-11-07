@@ -29,7 +29,7 @@ public class DetailsActivity extends AppCompatActivity {
 
         mWebView = (WebView)findViewById(R.id.webview);
         mWebView.getSettings().setJavaScriptEnabled(true);
-        mWebView.loadUrl("http://11101001.com/chart.html");
+        mWebView.loadUrl("http://11101001.com/chartService.php?devId=1");
     }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

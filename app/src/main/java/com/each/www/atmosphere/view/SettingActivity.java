@@ -36,10 +36,15 @@ public class SettingActivity extends AppCompatActivity {
     }
 
     public void Check(View view){
-        ToastUtil.show(SettingActivity.this,"检查更新");
+        /*1.检查是否有新版本
+        * 2.弹出对话框提示是否有新版本
+        * 3.
+        */
+        ToastUtil.show(SettingActivity.this, "检查更新");
         Intent intent = new Intent(SettingActivity.this, DownloadService.class);
-        intent.putExtra("apkUrl", "APK下载地址");
+        intent.putExtra("apkUrl", "http://each.ac.cn/apk/app-release.apk");
         startService(intent);
+
     }
     public void Feedback(View view){
         ToastUtil.show(SettingActivity.this,"反馈");
