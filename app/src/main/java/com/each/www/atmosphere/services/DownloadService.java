@@ -9,6 +9,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.IBinder;
 import android.support.v7.app.NotificationCompat;
+import android.util.Log;
 
 import com.each.www.atmosphere.R;
 
@@ -71,6 +72,7 @@ public class DownloadService extends Service {
         if (progress >= 100) {
             //下载完成
             builder.setContentIntent(getInstallIntent());
+            Log.e("TAG","nima");
         }
         mNotification = builder.build();
         mNotificationManager.notify(0, mNotification);
@@ -81,11 +83,14 @@ public class DownloadService extends Service {
      * @return
      */
     private PendingIntent getInstallIntent() {
+        Log.e("TAG","PendingIntent");
         File file = new File(Constants.DOWNLOAD_DIR + "test.apk");
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.setDataAndType(Uri.parse("file://" + file.getAbsolutePath()), "application/vnd.Android.package-archive");
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        intent.setDataAndType(Uri.parse("file://" + file.getAbsolutePath()),
+                "application/vnd.android.package-archive");
+        PendingIntent pendingIntent =
+                PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         return pendingIntent;
     }
     /**
