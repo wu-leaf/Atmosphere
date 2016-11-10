@@ -122,7 +122,6 @@ public class DownloadService extends Service {
                     public void onResponse(File response) {
                         //当文件下载完成后回调
                         notifyMsg("温馨提醒", "文件下载已完成", 100);
-
                         stopSelf();
                     }
                 });

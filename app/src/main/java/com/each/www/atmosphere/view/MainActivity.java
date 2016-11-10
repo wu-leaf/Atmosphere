@@ -141,6 +141,7 @@ public class MainActivity extends AppCompatActivity implements AMap.OnMarkerClic
                         aMap = mapView.getMap();
                         setUpMap();
                 }
+
                 mLocationErrText = (TextView)findViewById(R.id.location_errInfo_text);
                 mLocationErrText.setVisibility(View.GONE);
         }
@@ -311,6 +312,7 @@ public class MainActivity extends AppCompatActivity implements AMap.OnMarkerClic
          */
         @Override
         public void onMapLoaded() {
+            ToastMarkers();
                /* // 设置所有maker显示在当前可视区域地图中
                 LatLngBounds bounds = new LatLngBounds.Builder()
                         .include(Constants.XIAN).include(Constants.CHENGDU)
@@ -343,6 +345,21 @@ public class MainActivity extends AppCompatActivity implements AMap.OnMarkerClic
                // render(marker, infoWindow);
                 return infoWindow;
         }*/
+        public void ToastMarkers(){
+            if (aMap != null) {
+                List<Marker> markers = aMap.getMapScreenMarkers();
+                if (markers == null || markers.size() == 0) {
+                    ToastUtil.show(this, "当前可视范围内没有气象站");
+                    return;
+                }
+                String tile = "屏幕内有：";
+                for (Marker marker : markers) {
+                    tile = tile + " " + marker.getTitle();
+
+                }
+                ToastUtil.show(this, tile);
+            }
+        }
         @Override
         public void onClick(View v) {
                 switch (v.getId()) {
@@ -350,8 +367,9 @@ public class MainActivity extends AppCompatActivity implements AMap.OnMarkerClic
                         case R.id.fab:
                                 aMap.clear();
                                 initMarkersInfoFormNet();
-                                break;
+                               break;
                          default:
+
                                  break;
                 }
         }
@@ -374,6 +392,7 @@ public class MainActivity extends AppCompatActivity implements AMap.OnMarkerClic
         }
         @Override
         public void activate(OnLocationChangedListener listener) {
+
                 mListener = listener;
                 if (mlocationClient == null) {
                         mlocationClient = new AMapLocationClient(this);
@@ -389,6 +408,7 @@ public class MainActivity extends AppCompatActivity implements AMap.OnMarkerClic
                         // 在定位结束后，在合适的生命周期调用onDestroy()方法
                         // 在单次定位情况下，定位无论成功与否，都无需调用stopLocation()方法移除请求，定位sdk内部会移除
                         mlocationClient.startLocation();
+
                 }
         }
         @Override
@@ -402,12 +422,15 @@ public class MainActivity extends AppCompatActivity implements AMap.OnMarkerClic
         }
         @Override
         public void onLocationChanged(AMapLocation amapLocation) {
+               // ToastMarkers();
                 if (mListener != null && amapLocation != null) {
                         if (amapLocation != null
                                 && amapLocation.getErrorCode() == 0) {
                                 mLocationErrText.setVisibility(View.GONE);
                                 mListener.onLocationChanged(amapLocation);// 显示系统小蓝点
                               //  aMap.moveCamera(CameraUpdateFactory.zoomTo(18));
+
+
                         } else {
                                 String errText = "定位失败," + amapLocation.getErrorCode()+
                                         ": " + amapLocation.getErrorInfo();
