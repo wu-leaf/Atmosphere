@@ -2,14 +2,11 @@ package com.each.www.atmosphere.view;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -50,11 +47,6 @@ public class SettingActivity extends AppCompatActivity {
     }
 
     public void Check(View view){
-        /*
-        * 1.检查是否有新版本
-        * 2.弹出对话框提示是否有新版本
-        * 3.点击确认执行下面
-        */
             ToastUtil.show(SettingActivity.this, "检查更新");
             goToCheckNewVersion();
             Log.e("TAG","Check");
@@ -63,9 +55,7 @@ public class SettingActivity extends AppCompatActivity {
             if (VersionCheck.isNewVersion(newVersionCode,now_VersionCode)){
                 Log.e("TAG", "可以更新");
                  ToastUtil.show(SettingActivity.this,"正在更新");
-                 Intent intent = new Intent(SettingActivity.this, DownloadService.class);
-                 intent.putExtra("apkUrl", "http://each.ac.cn/new_apk/app-release.apk");
-                 startService(intent);
+                 VersionCheck.goUpdate(SettingActivity.this);
             }else{
                 ToastUtil.show(SettingActivity.this,"已是最新版本");
             }
@@ -73,7 +63,8 @@ public class SettingActivity extends AppCompatActivity {
     }
 
     private void goToCheckNewVersion() {
-        //检查服务器的app版本号,解析这个:http://each.ac.cn/atmosphere.json，获得versionCode
+        //检查服务器的app版本号,解析这个
+        // :http://each.ac.cn/atmosphere.json，获得versionCode
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -85,7 +76,7 @@ public class SettingActivity extends AppCompatActivity {
                         Log.e("TAG", s);
                         List<version> versionList = parseJSONWithGson(s);
                         for (version ver : versionList){
-                            if (ver != null){
+                            if (ver != null){  //List里面只有一个ver
                                 Log.e("TAG", ver.getVersionCode()+";"+ver.getApkUrl());
                                 versionModel(ver);
                             }

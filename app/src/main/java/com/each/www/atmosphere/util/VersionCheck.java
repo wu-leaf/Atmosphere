@@ -1,21 +1,12 @@
 package com.each.www.atmosphere.util;
 
-import android.app.Application;
+
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.util.Log;
 
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.each.www.atmosphere.MyApplication;
-import com.each.www.atmosphere.model.version;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import com.each.www.atmosphere.services.DownloadService;
 
-import java.util.List;
-import java.util.logging.Handler;
 
 /**
  * Created by Veyron on 2016/11/8.
@@ -54,6 +45,11 @@ public class VersionCheck {
 
         }
         return VerName;
+    }
+    public static void goUpdate(Context context){
+        Intent intent = new Intent(context, DownloadService.class);
+        intent.putExtra("apkUrl", "http://each.ac.cn/new_apk/app-release.apk");
+        context.startService(intent);
     }
 
 }

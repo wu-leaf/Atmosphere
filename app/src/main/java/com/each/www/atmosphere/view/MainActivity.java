@@ -2,8 +2,12 @@ package com.each.www.atmosphere.view;
 
 
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -47,7 +51,9 @@ import com.android.volley.toolbox.StringRequest;
 import com.each.www.atmosphere.MyApplication;
 import com.each.www.atmosphere.R;
 import com.each.www.atmosphere.model.atmosphere;
+import com.each.www.atmosphere.model.version;
 import com.each.www.atmosphere.util.ToastUtil;
+import com.each.www.atmosphere.util.VersionCheck;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.util.List;
@@ -73,6 +79,16 @@ public class MainActivity extends AppCompatActivity implements AMap.OnMarkerClic
         private static final int FILL_COLOR = Color.argb(10, 0, 0, 180);
 
         private SearchView searchView;
+
+        version mVersion;
+        int newVersionCode;
+        public static int MODE = MODE_PRIVATE;
+        public static final String SP_name = "newVersionCode";
+        public SharedPreferences mSharedPreferences;
+        public SharedPreferences msharedPreferences;
+
+        private MyApplication app;
+
         @Override
         protected void onCreate(Bundle savedInstanceState) {
                 super.onCreate(savedInstanceState);
@@ -102,8 +118,93 @@ public class MainActivity extends AppCompatActivity implements AMap.OnMarkerClic
                 mapView.onCreate(savedInstanceState); // 此方法必须重写
 
                 init();
+
+                checkIfNewVersion();
         }
 
+    private void checkIfNewVersion() {
+        int newVersionCode;
+        goToCheckNewVersion();
+        int now_VersionCode = VersionCheck.getNowVerCode(MainActivity.this);
+
+        Log.e("TAG","now_VersionCode "+ now_VersionCode );
+        app = (MyApplication)getApplication();
+        newVersionCode = app.getValue();
+        Log.e("TAG","new_VersionCode "+ newVersionCode);
+
+        if (VersionCheck.isNewVersion(newVersionCode,now_VersionCode)){
+            Log.e("TAG", "可以更新");
+            //弹出对话框
+            Dialog dialog = new AlertDialog.Builder(MainActivity.this)
+                    .setTitle("软件更新")
+                    .setMessage("有新版本")
+                            // 设置内容
+                    .setPositiveButton("更新",// 设置确定按钮
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog,
+                                                    int which) {
+                                    VersionCheck.goUpdate(MainActivity.this);
+                                    ToastUtil.show(MainActivity.this, "正在更新");
+                                }
+                            })
+                    .setNegativeButton("暂不更新",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog,
+                                                    int whichButton) {
+                                    // 点击"取消"按钮之后退出程序
+                                    //finish();
+                                }
+                            }).create();// 创建
+            // 显示对话框
+            dialog.show();
+        }
+    }
+
+    private void goToCheckNewVersion() {
+        //检查服务器的app版本号,解析这个:http://each.ac.cn/atmosphere.json，获得versionCode
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String url = "http://each.ac.cn/atmosphere.json";
+                StringRequest request = new StringRequest(Request.Method.GET,
+                        url, new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String s) {
+                        Log.e("TAG", s);
+                        List<version> versionList = parseJSONWithGsonForVersion(s);
+                        for (version ver : versionList){
+                            if (ver != null){
+                                Log.e("TAG", ver.getVersionCode()+";"+ver.getApkUrl());
+                                versionModel(ver);
+                            }
+                        }
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.e("TAG",error.toString());
+                    }
+                });
+                request.setTag("testGet");
+                MyApplication.getHttpQueues().add(request);
+            }
+        }).start();
+    }
+    private void versionModel(version ver) {
+        mVersion = ver;
+        Log.e("TAG", mVersion.getVersionCode()+"  versionModel");
+        int newVersionCode = mVersion.getVersionCode();
+        Log.e("TAG", "newVersionCode  " + newVersionCode);
+        app = (MyApplication)getApplication();
+        app.setValue(newVersionCode);
+    }
+    private  List<version> parseJSONWithGsonForVersion(String jsonData) {
+        Gson gson = new Gson();
+        List<version> versList = gson.fromJson(jsonData,
+                new TypeToken<List<version>>() {}.getType());
+        return versList;
+    }
     private void setupDrawerContent(NavigationView navigationView) {
                 navigationView.setNavigationItemSelectedListener(
                         new NavigationView.OnNavigationItemSelectedListener() {
