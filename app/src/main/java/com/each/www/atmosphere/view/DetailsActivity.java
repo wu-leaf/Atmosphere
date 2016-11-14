@@ -24,12 +24,13 @@ public class DetailsActivity extends AppCompatActivity {
 
         details = (TextView)findViewById(R.id.details_textview);
         Intent intent = getIntent();
-        String mk = intent.getStringExtra("mk");
-        details.setText(mk);
+        String devId = intent.getStringExtra("devId");
+        details.setText(devId);
 
         mWebView = (WebView)findViewById(R.id.webview);
         mWebView.getSettings().setJavaScriptEnabled(true);
-        mWebView.loadUrl("http://11101001.com/chartService.php?devId=1");
+        String url ="http://112.74.187.80/chartService.php?devId="+devId;
+        mWebView.loadUrl(url);
     }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

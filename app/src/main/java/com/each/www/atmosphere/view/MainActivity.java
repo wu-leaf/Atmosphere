@@ -81,11 +81,6 @@ public class MainActivity extends AppCompatActivity implements AMap.OnMarkerClic
         private SearchView searchView;
 
         version mVersion;
-        int newVersionCode;
-        public static int MODE = MODE_PRIVATE;
-        public static final String SP_name = "newVersionCode";
-        public SharedPreferences mSharedPreferences;
-        public SharedPreferences msharedPreferences;
 
         private MyApplication app;
 
@@ -268,7 +263,7 @@ public class MainActivity extends AppCompatActivity implements AMap.OnMarkerClic
                 new Thread(new Runnable() {
                         @Override
                         public void run() {
-                                String url = "http://each.ac.cn/json.json";
+                                String url = "http://112.74.187.80/dataService.php?devId=-1";
                                 StringRequest request = new StringRequest(Request.Method.GET,
                                         url, new Response.Listener<String>() {
                                         @Override
@@ -345,10 +340,19 @@ public class MainActivity extends AppCompatActivity implements AMap.OnMarkerClic
                          .parseDouble(atmos.getLat()), Double.parseDouble(atmos.getLng()));
 
                 aMap.addMarker(new MarkerOptions().anchor(0.5f, 0.5f)
-                        .position(latLng).title(atmos.getId())
-                        .snippet(atmos.getPress() + "\n" +
-                                atmos.getTemp() + "\n" +
-                                atmos.getUv()).draggable(true));
+                        .position(latLng).title(" 气象站: "+atmos.getDevId())
+                        .snippet(
+                                        "实时温度: " + atmos.getT() +"℃" + "\n" +
+                                        "实时湿度: " + atmos.getH() +"%"+ "\n" +
+                                        "大气压强: " + atmos.getP() +"p"+ "\n" +
+                                        " P M 2.5 : " + atmos.getPm() + "μg/m3"+"\n" +
+                                        "光照强度: " + atmos.getCd() + "LX"+"\n" +
+                                        "风速级别: " + atmos.getWr() + "级"+"\n" +
+                                        "雨势级别: " + atmos.getWater() + "级"+"\n" +
+                                        " 紫外线  : " + atmos.getUv() +"uw/cm2"+ "\n" +
+                                        "当前风向: " + atmos.getWd() + "\n" +
+                                        "空气质量指数: " + atmos.getDust() + "\n" +
+                                        atmos.getCreate_at()).draggable(true)).setObject(atmos.getDevId());
                /* // 动画效果
                 ArrayList<BitmapDescriptor> giflist = new ArrayList<BitmapDescriptor>();
                 giflist.add(BitmapDescriptorFactory
@@ -373,9 +377,9 @@ public class MainActivity extends AppCompatActivity implements AMap.OnMarkerClic
              * 1.获得气象站 站名
              * 2.获得气象站 所有图表  URL
              */
-                String mk = marker.getId();
+                String devId = (String)marker.getObject();
                 Intent intent = new Intent(this,DetailsActivity.class);
-                intent.putExtra("mk",mk);
+                intent.putExtra("devId",devId);
                 startActivity(intent);
         }
         /**
@@ -480,14 +484,8 @@ public class MainActivity extends AppCompatActivity implements AMap.OnMarkerClic
                         new TypeToken<List<atmosphere>>() {}.getType());
                    for (atmosphere atmos : atmosList){
                            if (atmos != null){
-                                 //  Log.e("gson",atmos.toString());
-                                   Log.e("gson",atmos.getId()+"");
-                                   Log.e("gson",atmos.getLat()+"");
-                                   Log.e("gson",atmos.getLng()+"");
-                                   Log.e("gson",atmos.getPress()+"");
-                                   Log.e("gson",atmos.getTemp()+"");
-                                   Log.e("gson",atmos.getUv()+"");
-                                   addMarkersToMap(atmos);
+                               Log.e("TAG",atmos.toString());
+                               addMarkersToMap(atmos);
                            }
                    }
         }
